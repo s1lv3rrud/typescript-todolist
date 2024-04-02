@@ -14,7 +14,7 @@ export const ToDoList = () => {
 
   const addToDo = () => {
     const newToDo: ToDo = {
-      task_id: 111,
+      task_id: Date.now(),
       task_content: text,
       task_date: "",
       completed: false,
@@ -32,7 +32,7 @@ export const ToDoList = () => {
   };
 
   return (
-    <div className="mt-4 max-w-xl mx-auto shadow-lg p-4">
+    <div className="bg-blue-100 mt-4 max-w-xl mx-auto shadow-lg p-4 rounded-lg">
       <div className="mb-6 flex justify-between items-center">
         <input
           type="text"
@@ -48,11 +48,12 @@ export const ToDoList = () => {
           Add
         </button>
       </div>{" "}
-      <ul>
+      <ul className="text-blue-900 divide-y divide-blue-200">
         {toDos.map((todo) => (
           <li
             key={todo.task_id}
             onClick={() => toggleToDo(todo.task_id)}
+            className="py-2"
             style={{
               textDecoration: todo.completed ? "line-through" : "none",
             }}
