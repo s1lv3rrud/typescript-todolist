@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface ToDo {
@@ -11,6 +11,23 @@ interface ToDo {
 export const ToDoList = () => {
   const [toDos, setToDos] = useState<ToDo[]>([]);
   const [text, setText] = useState("");
+
+  useEffect(() => {
+    const fetchToDos = async () => {
+      try {
+        const response = await fetch("/api/proxy");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setToDos(data);
+      } catch (error) {
+        console.error("Fetching tasks failed:", error);
+      }
+    };
+
+    fetchToDos();
+  }, []); // 빈 의존성 배열: 컴포넌트 마운트 시에만 호출
 
   const addToDo = () => {
     const newToDo: ToDo = {
