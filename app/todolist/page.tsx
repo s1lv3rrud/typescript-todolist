@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { todo } from "node:test";
 
 interface ToDo {
   task_id: number;
@@ -15,9 +16,9 @@ export const ToDoList = () => {
   useEffect(() => {
     const fetchToDos = async () => {
       try {
-        const response = await fetch("/api/proxy");
+        const response = await fetch("/api/taskList");
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error("Failed to fetch tasks.");
         }
         const data = await response.json();
         setToDos(data);
@@ -29,18 +30,67 @@ export const ToDoList = () => {
     fetchToDos();
   }, []); // 빈 의존성 배열: 컴포넌트 마운트 시에만 호출
 
-  const addToDo = () => {
-    const newToDo: ToDo = {
-      task_id: Date.now(),
-      task_content: text,
-      task_date: "",
-      completed: false,
-    };
-    setToDos([...toDos, newToDo]);
-    setText("");
+  const addToDo = async () => {
+    if (!text.trim()) return;
+
+    try {
+      const response = await fetch("/api/addTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          task_content: text,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create task.");
+      }
+
+      const newTask = await response.json();
+
+      setToDos((prevToDos) => [...prevToDos, newTask]);
+      setText("");
+    } catch (error) {
+      console.error("Adding task failed:", error);
+    }
   };
 
-  const toggleToDo = (id: number) => {
+  const toggleToDo = async (id: number) => {
+    const curTodo = toDos.find((curTodo) => curTodo.task_id === id);
+
+    if (curTodo && !curTodo.completed) {
+      try {
+        const response = await fetch(`api/delTask?id=${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete task.");
+        }
+      } catch (error) {
+        console.error("Deleting task failed:", error);
+      }
+    } else {
+      try {
+        const response = await fetch("/api/addTask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            task_content: curTodo?.task_content,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create task.");
+        }
+      } catch (error) {
+        console.error("Adding task failed:", error);
+      }
+    }
     setToDos(
       toDos.map((todo) =>
         todo.task_id === id ? { ...todo, completed: !todo.completed } : todo

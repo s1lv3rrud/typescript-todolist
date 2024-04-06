@@ -1,21 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  [key: string]: any;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
   try {
-    const result = await fetch("http://15.164.18.158:8000/task/list", {
-      headers: {},
+    const { id } = req.query;
+
+    const response = await fetch(`http://15.164.18.158:8000/task/${id}`, {
+      method: "DELETE",
     });
-    if (!result.ok) {
-      throw new Error("Failed to fetch the tasks.");
+
+    if (!response.ok) {
+      throw new Error("Failed to forward the request");
     }
-    const data = await result.json();
+
+    const data = await response.json();
     res.status(200).json(data);
   } catch (error) {
     if (error instanceof Error) {
