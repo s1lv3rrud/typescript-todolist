@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { todo } from "node:test";
 
 interface ToDo {
   task_id: number;
@@ -13,20 +12,20 @@ export const ToDoList = () => {
   const [toDos, setToDos] = useState<ToDo[]>([]);
   const [text, setText] = useState("");
 
-  useEffect(() => {
-    const fetchToDos = async () => {
-      try {
-        const response = await fetch("/api/taskList");
-        if (!response.ok) {
-          throw new Error("Failed to fetch tasks.");
-        }
-        const data = await response.json();
-        setToDos(data);
-      } catch (error) {
-        console.error("Fetching tasks failed:", error);
+  const fetchToDos = async () => {
+    try {
+      const response = await fetch("/api/taskList");
+      if (!response.ok) {
+        throw new Error("Failed to fetch tasks.");
       }
-    };
+      const data = await response.json();
+      setToDos(data);
+    } catch (error) {
+      console.error("Fetching tasks failed:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchToDos();
   }, []); // 빈 의존성 배열: 컴포넌트 마운트 시에만 호출
 
@@ -62,7 +61,7 @@ export const ToDoList = () => {
 
     if (curTodo && !curTodo.completed) {
       try {
-        const response = await fetch(`api/delTask?id=${id}`, {
+        const response = await fetch(`/api/delTask?id=${id}`, {
           method: "DELETE",
         });
 
@@ -72,6 +71,11 @@ export const ToDoList = () => {
       } catch (error) {
         console.error("Deleting task failed:", error);
       }
+      setToDos(
+        toDos.map((todo) =>
+          todo.task_id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
     } else {
       try {
         const response = await fetch("/api/addTask", {
@@ -90,12 +94,13 @@ export const ToDoList = () => {
       } catch (error) {
         console.error("Adding task failed:", error);
       }
+      setToDos(
+        toDos.map((todo) =>
+          todo.task_id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
+      fetchToDos();
     }
-    setToDos(
-      toDos.map((todo) =>
-        todo.task_id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
   };
 
   return (
