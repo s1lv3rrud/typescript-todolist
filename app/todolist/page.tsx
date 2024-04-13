@@ -56,51 +56,19 @@ export const ToDoList = () => {
     }
   };
 
-  const toggleToDo = async (id: number) => {
-    const curTodo = toDos.find((curTodo) => curTodo.task_id === id);
+  const deleteToDo = async (id: number) => {
+    try {
+      const response = await fetch(`/api/delTask?id=${id}`, {
+        method: "DELETE",
+      });
 
-    if (curTodo && !curTodo.completed) {
-      try {
-        const response = await fetch(`/api/delTask?id=${id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete task.");
-        }
-      } catch (error) {
-        console.error("Deleting task failed:", error);
+      if (!response.ok) {
+        throw new Error("Failed to delete task.");
       }
-      setToDos(
-        toDos.map((todo) =>
-          todo.task_id === id ? { ...todo, completed: !todo.completed } : todo
-        )
-      );
-    } else {
-      try {
-        const response = await fetch("/api/addTask", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            task_content: curTodo?.task_content,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create task.");
-        }
-      } catch (error) {
-        console.error("Adding task failed:", error);
-      }
-      setToDos(
-        toDos.map((todo) =>
-          todo.task_id === id ? { ...todo, completed: !todo.completed } : todo
-        )
-      );
-      fetchToDos();
+    } catch (error) {
+      console.error("Deleting task failed:", error);
     }
+    setToDos(toDos.filter((todo) => todo.task_id !== id).map((todo) => todo));
   };
 
   return (
@@ -124,13 +92,24 @@ export const ToDoList = () => {
         {toDos.map((todo) => (
           <li
             key={todo.task_id}
-            onClick={() => toggleToDo(todo.task_id)}
-            className="py-2"
-            style={{
-              textDecoration: todo.completed ? "line-through" : "none",
-            }}
+            className="py-2 flex justify-between items-center"
           >
-            {todo.task_content}
+            <span
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            >
+              {todo.task_content}
+            </span>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => deleteToDo(todo.task_id)}
+                className="text-red-500"
+              >
+                삭제
+              </button>
+              <button className="text-green-500">수정</button>
+            </div>
           </li>
         ))}
       </ul>
