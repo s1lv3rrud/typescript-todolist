@@ -6,6 +6,7 @@ interface ToDo {
   task_content: string;
   task_date: string;
   completed?: boolean;
+  editing?: boolean;
 }
 
 export const ToDoList = () => {
@@ -71,6 +72,24 @@ export const ToDoList = () => {
     setToDos(toDos.filter((todo) => todo.task_id !== id).map((todo) => todo));
   };
 
+  const modifyToDo = async (id: number, newContent: string) => {
+    try {
+      const response = await fetch(`/api/modTask?id=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ task_content: newContent }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to modify task.");
+      }
+    } catch (error) {
+      console.error("Modifying task failed:", error);
+    }
+  };
+
   return (
     <div className="bg-blue-100 mt-4 max-w-xl mx-auto shadow-lg p-4 rounded-lg">
       <div className="mb-6 flex justify-between items-center">
@@ -94,13 +113,29 @@ export const ToDoList = () => {
             key={todo.task_id}
             className="py-2 flex justify-between items-center"
           >
-            <span
-              style={{
-                textDecoration: todo.completed ? "line-through" : "none",
-              }}
-            >
-              {todo.task_content}
-            </span>
+            {todo.editing ? (
+              <input
+                type="text"
+                value={todo.task_content}
+                onChange={(e) => {
+                  const updatedToDos = toDos.map((item) =>
+                    item.task_id === todo.task_id
+                      ? { ...item, task_content: e.target.value }
+                      : item
+                  );
+                  setToDos(updatedToDos);
+                }}
+              />
+            ) : (
+              <span
+                style={{
+                  textDecoration: todo.completed ? "line-through" : "none",
+                }}
+              >
+                {todo.task_content}
+              </span>
+            )}
+
             <div className="flex space-x-2">
               <button
                 onClick={() => deleteToDo(todo.task_id)}
@@ -108,7 +143,22 @@ export const ToDoList = () => {
               >
                 삭제
               </button>
-              <button className="text-green-500">수정</button>
+              <button
+                onClick={() => {
+                  if (todo.editing) {
+                    modifyToDo(todo.task_id, todo.task_content);
+                  }
+                  const updatedToDos = toDos.map((item) =>
+                    item.task_id === todo.task_id
+                      ? { ...item, editing: !item.editing }
+                      : item
+                  );
+                  setToDos(updatedToDos);
+                }}
+                className="text-green-500"
+              >
+                {todo.editing ? "저장" : "수정"}
+              </button>
             </div>
           </li>
         ))}
