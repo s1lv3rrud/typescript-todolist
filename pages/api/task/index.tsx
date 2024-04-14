@@ -5,11 +5,16 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const { id } = req.query;
-
-    const response = await fetch(`http://15.164.18.158:8000/task/${id}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/task/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req.body),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to forward the request");

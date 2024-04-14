@@ -1,22 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+type Data = {
+  [key: string]: any;
+};
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<Data>
 ) {
   try {
-    const { id } = req.query;
-
-    const response = await fetch(`http://15.164.18.158:8000/task/${id}/`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(req.body),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/task/list`,
+      {
+        headers: {},
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Failed to forward the request");
+      throw new Error("Failed to fetch the tasks.");
     }
 
     const data = await response.json();

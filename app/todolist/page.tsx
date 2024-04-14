@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import axios from "axios";
 
 interface ToDo {
   task_id: number;
@@ -14,16 +15,14 @@ export const ToDoList = () => {
   const [text, setText] = useState("");
 
   const fetchToDos = async () => {
-    try {
-      const response = await fetch("/api/taskList");
-      if (!response.ok) {
-        throw new Error("Failed to fetch tasks.");
-      }
-      const data = await response.json();
-      setToDos(data);
-    } catch (error) {
-      console.error("Fetching tasks failed:", error);
-    }
+    axios
+      .get("/api/task/list")
+      .then((response) => {
+        setToDos(response.data);
+      })
+      .catch((error) => {
+        console.error("Fetching tasks failed:", error);
+      });
   };
 
   useEffect(() => {
@@ -34,7 +33,7 @@ export const ToDoList = () => {
     if (!text.trim()) return;
 
     try {
-      const response = await fetch("/api/addTask", {
+      const response = await fetch("/api/task/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,23 +57,21 @@ export const ToDoList = () => {
   };
 
   const deleteToDo = async (id: number) => {
-    try {
-      const response = await fetch(`/api/delTask?id=${id}`, {
-        method: "DELETE",
+    axios
+      .delete(`/api/task/${id}`)
+      .then((response) => {
+        setToDos(
+          toDos.filter((todo) => todo.task_id !== id).map((todo) => todo)
+        );
+      })
+      .catch((error) => {
+        console.error("Fetching tasks failed:", error);
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete task.");
-      }
-    } catch (error) {
-      console.error("Deleting task failed:", error);
-    }
-    setToDos(toDos.filter((todo) => todo.task_id !== id).map((todo) => todo));
   };
 
   const modifyToDo = async (id: number, newContent: string) => {
     try {
-      const response = await fetch(`/api/modTask?id=${id}`, {
+      const response = await fetch(`/api/task/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
