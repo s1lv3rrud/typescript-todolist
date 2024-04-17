@@ -10,6 +10,28 @@ const Join = () => {
     nickname: "",
   });
 
+  const signUp = async () => {
+    try {
+      const response = await fetch("/api/accounts/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          nickname: formData.nickname,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to signup.");
+      }
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -22,6 +44,7 @@ const Join = () => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
     // TODO: 회원가입 처리
+    signUp();
   };
 
   return (

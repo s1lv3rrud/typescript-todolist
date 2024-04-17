@@ -8,6 +8,27 @@ const Login = () => {
     password: "",
   });
 
+  const login = async () => {
+    try {
+      const response = await fetch("/api/accounts/auth/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to login.");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -20,6 +41,7 @@ const Login = () => {
     e.preventDefault();
     console.log("Login Form Data:", formData);
     // TODO: 로그인 처리
+    login();
   };
 
   return (
