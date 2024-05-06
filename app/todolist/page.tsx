@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
@@ -13,10 +14,37 @@ interface ToDo {
 export const ToDoList = () => {
   const [toDos, setToDos] = useState<ToDo[]>([]);
   const [text, setText] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/accounts/auth", {
+        method: "DELETE",
+      });
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to logout.");
+      } else if (response.status === 200) {
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("nickname");
+        location.href = "/";
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    const user_id = localStorage.getItem("user_id");
+    if (user_id) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const fetchToDos = async () => {
     axios
-      .get("/api/task/list")
+      .get("/api/task/list", {})
       .then((response) => {
         setToDos(response.data);
       })
@@ -35,6 +63,7 @@ export const ToDoList = () => {
     try {
       const response = await fetch("/api/task/", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -58,14 +87,14 @@ export const ToDoList = () => {
 
   const deleteToDo = async (id: number) => {
     axios
-      .delete(`/api/task/${id}`)
+      .delete(`/api/task/${id}`, {})
       .then((response) => {
         setToDos(
           toDos.filter((todo) => todo.task_id !== id).map((todo) => todo)
         );
       })
       .catch((error) => {
-        console.error("Fetching tasks failed:", error);
+        console.error("Deleting tasks failed:", error);
       });
   };
 
@@ -161,13 +190,30 @@ export const ToDoList = () => {
         ))}
       </ul>
       <div className="mt-4 flex justify-center items-center space-x-4">
+        <button
+          type="submit"
+          className={`text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg px-4 py-2 ${
+            isLoggedIn ? "" : "hidden"
+          }`}
+          onClick={logout}
+        >
+          Logout
+        </button>
         <Link href="/login" legacyBehavior>
-          <a className="inline-block text-blue-700 bg-white hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg px-4 py-2">
+          <a
+            className={`inline-block text-blue-700 bg-white hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg px-4 py-2 ${
+              isLoggedIn ? "hidden" : ""
+            }`}
+          >
             Login
           </a>
         </Link>
         <Link href="/join" legacyBehavior>
-          <a className="inline-block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg px-4 py-2">
+          <a
+            className={`inline-block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg px-4 py-2 ${
+              isLoggedIn ? "hidden" : ""
+            }`}
+          >
             Join
           </a>
         </Link>

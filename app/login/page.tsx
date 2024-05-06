@@ -8,10 +8,13 @@ const Login = () => {
     password: "",
   });
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const login = async () => {
     try {
       const response = await fetch("/api/accounts/auth/", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -23,9 +26,34 @@ const Login = () => {
 
       if (!response.ok) {
         throw new Error("Failed to login.");
+      } else if (response.status === 200) {
+        setIsLoggedIn(true);
+        const data = await response.json();
+        console.log(data.user);
+        localStorage.setItem("user_id", data.user.id);
+        localStorage.setItem("nickname", data.user.nickname);
+        location.href = "/";
       }
     } catch (error) {
       console.error("Login failed:", error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/accounts/auth", {
+        method: "DELETE",
+      });
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to logout.");
+      } else if (response.status === 200) {
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("nickname");
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
@@ -40,7 +68,6 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login Form Data:", formData);
-    // TODO: 로그인 처리
     login();
   };
 

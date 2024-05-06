@@ -26,6 +26,8 @@ const Join = () => {
 
       if (!response.ok) {
         throw new Error("Failed to signup.");
+      } else {
+        location.href = "/";
       }
     } catch (error) {
       console.error("Signup failed:", error);
@@ -43,7 +45,6 @@ const Join = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
-    // TODO: 회원가입 처리
     signUp();
   };
 
