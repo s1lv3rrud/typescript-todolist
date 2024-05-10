@@ -10,6 +10,7 @@ export default async function handler(
       {
         method: "POST",
         headers: {
+          Cookie: req.headers.cookie ?? "",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(req.body),

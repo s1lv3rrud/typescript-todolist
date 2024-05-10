@@ -19,6 +19,14 @@ export default async function handler(
         }
       );
 
+      const setCookieHeader = response.headers.get("set-cookie");
+      if (setCookieHeader) {
+        const cookies = setCookieHeader
+          .split(",")
+          .map((cookie) => cookie.trim());
+        res.setHeader("set-cookie", cookies);
+      }
+
       if (!response.ok) {
         throw new Error("Failed to forward the request");
       }
@@ -45,6 +53,14 @@ export default async function handler(
 
       if (!response.ok) {
         throw new Error("Failed to forward the request");
+      }
+
+      const setCookieHeader = `access=""; Max-Age=0; Path=/,refresh=""; Max-Age=0; Path=/`;
+      if (setCookieHeader) {
+        const cookies = setCookieHeader
+          .split(",")
+          .map((cookie) => cookie.trim());
+        res.setHeader("set-cookie", cookies);
       }
 
       const data = await response.json();

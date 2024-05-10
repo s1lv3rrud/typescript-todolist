@@ -12,9 +12,8 @@ const Login = () => {
 
   const login = async () => {
     try {
-      const response = await fetch("/api/accounts/auth/", {
+      const res = await fetch("/api/accounts/auth/", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -24,36 +23,17 @@ const Login = () => {
         }),
       });
 
-      if (!response.ok) {
+      if (!res.ok) {
         throw new Error("Failed to login.");
-      } else if (response.status === 200) {
+      } else if (res.status === 200) {
         setIsLoggedIn(true);
-        const data = await response.json();
-        console.log(data.user);
+        const data = await res.json();
         localStorage.setItem("user_id", data.user.id);
         localStorage.setItem("nickname", data.user.nickname);
         location.href = "/";
       }
     } catch (error) {
       console.error("Login failed:", error);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      const response = await fetch("/api/accounts/auth", {
-        method: "DELETE",
-      });
-      console.log(response);
-      if (!response.ok) {
-        throw new Error("Failed to logout.");
-      } else if (response.status === 200) {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("nickname");
-        setIsLoggedIn(false);
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
     }
   };
 
