@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { cookies } from "next/headers";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,6 +14,9 @@ export default async function handler(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/task/${id}`,
         {
           method: "DELETE",
+          headers: {
+            Cookie: req.headers.cookie ?? "",
+          },
         }
       );
 
@@ -40,6 +44,7 @@ export default async function handler(
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Cookie: req.headers.cookie ?? "",
           },
           body: JSON.stringify(req.body),
         }

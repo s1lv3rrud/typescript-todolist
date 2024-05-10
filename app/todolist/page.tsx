@@ -21,7 +21,6 @@ export const ToDoList = () => {
       const response = await fetch("/api/accounts/auth", {
         method: "DELETE",
       });
-      console.log(response);
       if (!response.ok) {
         throw new Error("Failed to logout.");
       } else if (response.status === 200) {
@@ -63,7 +62,6 @@ export const ToDoList = () => {
     try {
       const response = await fetch("/api/task/", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
