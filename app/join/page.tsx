@@ -12,7 +12,7 @@ const Join = () => {
 
   const signUp = async () => {
     try {
-      const response = await fetch("/api/accounts/signup", {
+      const res = await fetch("/api/accounts/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,8 +23,10 @@ const Join = () => {
           nickname: formData.nickname,
         }),
       });
-
-      if (!response.ok) {
+      if (res.status === 400) {
+        const data = await res.json();
+        alert(data.message);
+      } else if (!res.ok) {
         throw new Error("Failed to signup.");
       } else {
         location.href = "/";

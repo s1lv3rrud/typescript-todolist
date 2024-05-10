@@ -15,13 +15,18 @@ export default async function handler(
         body: JSON.stringify(req.body),
       }
     );
-
     if (!response.ok) {
+      if (response.status === 400) {
+        res
+          .status(response.status)
+          .json({ message: "이미 존재하는 이메일입니다." });
+      }
       throw new Error("Failed to forward the request");
     }
 
     const data = await response.json();
-    res.status(200).json(data);
+    console.log("Data: ", data);
+    res.status(response.status).json(data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
