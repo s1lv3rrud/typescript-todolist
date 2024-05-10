@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="container mx-auto">
       <h1 className="text-white text-4xl font-bold text-center my-8">
-        {nickname}'s todolist
+        {nickname ? `${nickname}'s todolist` : "Welcome to todolist!"}
       </h1>
       <ToDoList />
     </div>
