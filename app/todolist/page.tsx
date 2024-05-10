@@ -44,8 +44,12 @@ export const ToDoList = () => {
   const fetchToDos = async () => {
     axios
       .get("/api/task/list", {})
-      .then((response) => {
-        setToDos(response.data);
+      .then((res) => {
+        setToDos(
+          res.data.filter(
+            (todo) => todo.user_id === Number(localStorage.getItem("user_id"))
+          )
+        );
       })
       .catch((error) => {
         console.error("Fetching tasks failed:", error);
